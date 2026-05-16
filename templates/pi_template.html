@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>COMMERCIAL INVOICE - {{ contract_no }}</title>
+<style>
+  @page { size: A4; margin: 15mm 12mm 12mm 15mm;
+    @bottom-center { content: "Page " counter(page) " / " counter(pages); font-size: 8pt; color: #666; font-family: Arial, sans-serif; } }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, "Helvetica", "Meiryo", sans-serif; font-size: 10pt; line-height: 1.4; color: #000; }
+  .header { text-align: center; }
+  .header .ch-name { font-size: 10pt; }
+  .header .en-name { font-size: 11pt; font-weight: bold; text-transform: uppercase; }
+  .header .addr { font-size: 9pt; }
+  .inv-title { text-align: center; font-size: 14pt; font-weight: bold; text-transform: uppercase; margin: 1mm 0; }
+
+  .po-block { text-align: right; font-size: 9pt; margin-bottom: 1mm; }
+  .po-block p { margin: 0.2mm 0; }
+
+  .info-block { font-size: 9pt; }
+  .info-block .row { display: flex; }
+  .info-block .label { width: 18%; min-width: 60px; }
+  .info-block .content { }
+
+  .divider { border-top: 1px solid #333; margin: 0.5mm 0 1mm 0; }
+
+  table.data { width: 100%; border-collapse: collapse; font-size: 8pt; margin-bottom: 0; }
+  table.data thead th { border: 0.5px solid #000; padding: 1mm 1mm; font-weight: bold; text-align: center; vertical-align: middle; }
+  table.data thead th.sub { font-weight: normal; font-size: 7.5pt; border-top: 0.5px solid #000; }
+  table.data tbody td { border: 0.5px solid #000; padding: 1.5mm 1mm; vertical-align: middle; text-align: center; }
+
+  .marks-cell { font-size: 7pt; text-align: center; vertical-align: middle; font-weight: bold; white-space: pre-line; }
+  .img-cell { text-align: center; vertical-align: middle; }
+  .img-cell img { max-width: 45px; max-height: 45px; vertical-align: middle; margin: 0 1px; }
+  .amount { font-family: Arial, sans-serif; }
+
+  .transport { font-size: 9pt; margin-bottom: 0; padding: 0.5mm 0; }
+  .transport-row { display: flex; }
+  .transport-row span { flex: 1; }
+  .transport-row span:nth-child(2) { text-align: center; }
+  .transport-row span:nth-child(3) { text-align: right; }
+
+  .total-block { margin: 1mm 0 0 0; font-size: 10pt; display: flex; justify-content: space-between; }
+  .total-block .total-label { }
+  .total-block .total-qty { }
+  .total-block .total-ctn { }
+  .total-block .total-amt { font-size: 12pt; font-weight: bold; }
+  .deposit-line { font-size: 10pt; font-weight: bold; text-align: right; }
+  .payment-etd { font-size: 9pt; margin-top: 2mm; }
+  .payment-etd p { margin: 0.5mm 0; }
+  .signatures { margin-top: 5mm; width: 100%; font-size: 9pt; }
+  .sig-line { display: flex; justify-content: space-between; margin: 0.5mm 0; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="ch-name">示例贸易公司</div>
+    <div class="en-name">EXAMPLE COMPANY</div>
+    <div class="addr">10F Gaofa Building, No.3, Fushun Road, High-tech Development Zone, Weihai, China</div>
+  </div>
+  <div class="inv-title">COMMERCIAL INVOICE</div>
+
+  <div class="po-block">
+    <p>PO No. : {{ contract_no }}</p>
+    <p>Date : {{ date }}</p>
+    <p>Supplier Code : {{ supplier_code }}</p>
+  </div>
+
+  <div class="info-block">
+    <div class="row"><span class="label">BUYER</span><span class="content">{{ client.name }}</span></div>
+    <div class="row"><span class="label">ADDRESS</span><span class="content">{{ client.address }}</span></div>
+    <div class="row"><span class="label">TEL</span><span class="content">{{ client.phone }}</span></div>
+    <div style="height:4mm;"></div>
+    <div class="row"><span class="label">SELLER</span><span class="content">EXAMPLE COMPANY</span></div>
+    <div class="row"><span class="label">ADDRESS</span><span class="content">10F Gaofa Building, No.3, Fushun Road, High-tech Development Zone, Weihai, China</span></div>
+  </div>
+
+  <div style="height:3mm;"></div>
+
+  <div class="transport" style="white-space:nowrap;">
+    <div class="transport-row">
+      <span style="padding-left:2mm">From: {{ port_from.name_en }},CHINA</span>
+      <span style="padding-left:10mm">To: {{ port_to.name_en }},JAPAN</span>
+      <span style="padding-left:20mm">BY SEA</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 2-row header: FOB and Amount split across rows with line separator -->
+  <table class="data">
+    <thead>
+      <tr>
+        <th rowspan="2" style="width:14%">Marks &amp; Numbers</th>
+        <th colspan="2" rowspan="2" style="width:28%">Description of Goods</th>
+        <th rowspan="2" style="width:7%">color</th>
+        <th rowspan="2" style="width:10%">SIZE</th>
+        <th rowspan="2" style="width:7%">PCS</th>
+        <th rowspan="2" style="width:7%">PCS</th>
+        <th rowspan="2" style="width:7%">CARTON</th>
+        <th style="width:14%">FOB {{ port_from.name_en }}</th>
+        <th style="width:10%">Amount</th>
+      </tr>
+      <tr>
+        <th class="sub" style="border-top:0.5px solid #000">USD</th>
+        <th class="sub" style="border-top:0.5px solid #000">USD</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for prod in products %}
+      <tr>
+        {% if loop.first %}
+        <td class="marks-cell" rowspan="{{ products|length }}">3COINS<br>CTN NO.<br>MADE IN CHINA</td>
+        {% endif %}
+        <td>{{ prod.item_no }}</td>
+        <td class="img-cell">
+          {% if prod.image_path %}
+          <img src="{{ prod.image_path }}" alt="">
+          {% endif %}
+        </td>
+        <td>{{ prod.color }}</td>
+        <td>{{ prod.size }}</td>
+        <td>{{ prod.qty }}</td>
+        <td>{{ prod.pcs_per_carton }}</td>
+        <td>{{ prod.cartons }}</td>
+        <td class="amount">{{ prod.unit_price_usd }}</td>
+        <td class="amount">{{ prod.amount_usd }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="total-block">
+    <span style="margin-left:25%;">TOTAL :</span>
+    <span class="total-qty">{{ total_qty }}</span>
+    <span class="total-ctn">{{ total_cartons }}</span>
+    <span class="total-amt">${{ total_amount_usd }}</span>
+  </div>
+  {% set total_val = total_amount_usd|replace(',','')|float %}
+  {% if total_val >= 10000 %}
+  <div class="deposit-line">{{ deposit_rate }} DEPOSIT: USD {{ deposit_amount }}</div>
+  {% endif %}
+
+  {% set total_val = total_amount_usd|replace(',','')|float %}
+  {% if total_val >= 10000 %}
+  <div class="payment-etd">
+    <p><strong>PAYMENT TERM</strong> : {{ payment }}</p>
+    <p><strong>ETD</strong> : {{ etd }}</p>
+  </div>
+  {% endif %}
+
+  <div class="signatures">
+    {% if seal_path %}
+    <div style="text-align:right;margin-bottom:2mm;"><img src="{{ seal_path }}" style="width:40mm;height:40mm;"></div>
+    {% endif %}
+    <div class="sig-line">
+      <span><strong>BUYER</strong> : ________________________</span>
+      <span><strong>SELLER</strong> : EXAMPLE COMPANY</span>
+    </div>
+  </div>
+</body>
+</html>

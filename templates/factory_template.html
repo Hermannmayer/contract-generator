@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>成品定做合同 - {{ contract_no }}</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm 14mm 18mm;
+    @bottom-center { content: "Page " counter(page) " / " counter(pages); font-size: 8pt; color: #666; font-family: "SimSun", serif; } }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "SimSun", "宋体", serif; font-size: 11pt; line-height: 1.5; color: #000; }
+  .title { text-align: center; font-size: 18pt; font-weight: bold; margin-bottom: 5mm; letter-spacing: 6pt; }
+  .info-table { width: 100%; border-collapse: collapse; margin-bottom: 4mm; font-size: 10pt; }
+  .info-table td { border: none; padding: 2mm 3mm; vertical-align: top; }
+  .info-table td:first-child { width: 60%; }
+  .info-table td:last-child { width: 40%; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 4mm; }
+  table.data thead th { border: 0.5px solid #666; padding: 2mm 1mm; font-weight: bold; text-align: center; }
+  table.data tbody td { border: 0.5px solid #999; padding: 2mm 1mm; vertical-align: middle; text-align: center; }
+  table.data tbody td.left { text-align: left; }
+  table.data .img-cell img { max-width: 70px; max-height: 70px; vertical-align: middle; }
+  table.data .total-row td { font-weight: bold; font-size: 10pt; border-top: 1.5px solid #333; }
+  .page-break { page-break-before: always; }
+  .clause-section { font-size: 11pt; line-height: 1.6; }
+  .clause-section .clause-item { margin: 1.5mm 0; padding-bottom: 2mm; border-bottom: 0.5px solid #000; text-indent: 2em; }
+  .clause-section .clause-item:last-child { border-bottom: none; }
+  .signatures { margin-top: 10mm; page-break-inside: avoid; }
+  .sig-table { width: 100%; border-collapse: collapse; }
+  .sig-table td { border: 0.5px solid #000; padding: 3mm 4mm; vertical-align: top; width: 50%; }
+  .sig-table td p { margin: 1mm 0; font-size: 10pt; }
+  .sig-label { font-weight: bold; }
+</style>
+</head>
+<body>
+  <div class="title">成  品  定  做  合  同</div>
+
+  <!-- Left-right split info table -->
+  <table class="info-table">
+    <tr>
+      <td>承揽方：{{ factory.name }}</td>
+      <td>合同编号：{{ contract_no }}</td>
+    </tr>
+    <tr>
+      <td>定作方：{{ company.name }}</td>
+      <td>签订地点：{{ sign_place }}</td>
+    </tr>
+    <tr>
+      <td>一、产品名称、款号、数量、金额、交货时间及数量</td>
+      <td>签订时间：{{ date }}</td>
+    </tr>
+  </table>
+
+  <table class="data">
+    <thead>
+      <tr>
+        <th style="width:18%">定作物品或项目</th>
+        <th style="width:14%">货号</th>
+        <th style="width:7%">颜色</th>
+        <th style="width:10%">图片</th>
+        <th style="width:8%">数量(PCS)</th>
+        <th style="width:9%">装箱数</th>
+        <th style="width:7%">箱数</th>
+        <th style="width:9%">单价(元)</th>
+        <th style="width:8%">金额(元)</th>
+        <th style="width:14%">交货数量及期限</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for prod in products %}
+      <tr>
+        <td class="left">{{ prod.name }}</td>
+        <td>{{ prod.item_no }}</td>
+        <td>{{ prod.color }}</td>
+        <td class="img-cell">{% if prod.image_path %}<img src="{{ prod.image_path }}" alt="">{% endif %}</td>
+        <td>{{ prod.qty }}</td>
+        <td>{{ prod.pcs_per_carton }}</td>
+        <td>{{ prod.cartons }}</td>
+        <td>{{ prod.unit_price_cny }}</td>
+        <td>{{ prod.amount_cny }}</td>
+        {% if loop.first %}
+        <td rowspan="{{ products|length }}" style="text-align:center;vertical-align:middle;">{{ delivery_note if delivery_note else "20XX年X月X日前全部运送到指定地点" }}</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+      <tr class="total-row">
+        <td colspan="4" style="text-align:right;padding-right:5mm;">合 计</td>
+        <td>{{ total_qty }}件</td><td></td><td>{{ total_cartons }}箱</td><td></td><td>¥{{ total_amount_cny }}</td><td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Price note + Chinese uppercase total -->
+  <p style="font-size:10pt;margin-top:2mm;text-align:center;">{{ price_note }}</p>
+  <p style="font-size:10pt;font-weight:bold;margin-top:1mm;">合计人民币金额(大写):  人民币{{ total_cny_upper }}</p>
+
+  <div class="page-break"></div>
+
+  <div class="clause-section">
+    {% set clause_items = [
+      ('二', clauses.clause_1_product), ('三', clauses.clause_2_quality),
+      ('四', clauses.clause_3_mold_fee), ('五', clauses.clause_4_packaging),
+      ('六', clauses.clause_5_delivery), ('七', clauses.clause_6_inspection),
+      ('八', clauses.clause_7_payment), ('九', clauses.clause_8_guarantee),
+      ('十', clauses.clause_9_liability), ('十一', clauses.clause_10_dispute),
+      ('十二', clauses.clause_11_shipping), ('十三', clauses.clause_12_other),
+    ] %}
+    {% for num, text in clause_items %}
+      {% if text %}
+      <div class="clause-item"><strong>{{ num }}、</strong>{{ text }}</div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="signatures">
+    <table class="sig-table">
+      <tr>
+        <td style="white-space:nowrap">
+          <p><span class="sig-label">承揽方(盖章):</span> {{ factory.name }}</p>
+          <p>地址: {{ factory.address }}</p>
+          <p>税号: {{ factory.tax_id }}</p>
+          {% if factory.bank_name %}<p>开户行: {{ factory.bank_name }}</p>{% endif %}
+          {% if factory.bank_account %}<p>账号: {{ factory.bank_account }}</p>{% endif %}
+        </td>
+        <td style="white-space:nowrap">
+          <p><span class="sig-label">定作方(盖章):</span> {{ company.name }}</p>
+          <p>地址: {{ company.address }}</p>
+          <p>税号: {{ company.tax_id }}</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+</body>
+</html>
